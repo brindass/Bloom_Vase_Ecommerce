@@ -5,41 +5,47 @@
 {% endblock head %}
 {% block body %}
 <div style= 'margin-left:15px;'>
-
-    {% comment %} <div>
-        <h2 style="color: black; margin-top: 10px;"> _</h2>
-    </div> {% endcomment %}
     
     <!-- Button trigger modal -->
-    <h2 style = 'margin-top:50px'>Add New Category</h2> 
+    <h2 style = 'margin-top:50px'>Add New Product</h2> 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
-        Add Category
+        Add Product
     </button>
     
     <div class="container">
         <div>
-            <h2 style="color: black; margin-top: 50px;">Product Categories</h2>
+            <h2 style="color: black; margin-top: 50px;">Product Details</h2>
         </div>
         <table class="table">
             <thead>
               <tr>
-                <th scope="col">Number</th>
-                <th scope="col">Name</th>
+                <th scope="col">Product id</th>
+                <th scope="col">Image</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Size</th>
+                <th scope="col">Price</th>
                 <th scope="col">Update</th>
                 <th scope="col">Delete</th>
               </tr>
             </thead>
             <tbody>
-                {% for category in categories %}
+                {% for product in products %}
                 <tr>
-                  <th scope="row">{{ category.id }}</th>
-                  <td>{{ category.name }}</td>
-                  <td><button type="button" class='btn btn-primary btn-sm' onclick="openUpdateModal('{{ category.id }}', '{{ category.name }}')">Update</button>
-                  </td></td>
-                  {% if category.inactive %}
-                  <td><a href="{% url 'delete_category' category.id%}" class='btn btn-danger btn-sm'>Deleted</a></td>
+                  <th scope="row">{{ product.id }}</th>
+                  <th scope="row">
+                    <img src="{{ product.base_image.url }}" alt="{{ product.name }}" style="width: 50px; height: auto; border-radius: 50%;">
+                  </th>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.quantity }}</td>
+                  <td>{{ product.size }}</td>
+                  <td>₹{{ product.price }}</td>
+                  <td><button type="button" class='btn btn-primary btn-sm' onclick="openUpdateModal('{{ product.id }}', '{{ product.name }}')">Edit</button>
+                  </td>
+                  {% if product.inactive %}
+                  <td><a href="{% url 'delete_product' product.id%}" class='btn btn-danger btn-sm'>Deleted</a></td>
                   {% else %}
-                  <td><a href="{% url 'delete_category' category.id%}" class='btn btn-info btn-sm'>Delete</a></td>
+                  <td><a href="{% url 'delete_product' product.id%}" class='btn btn-info btn-sm'>Delete</a></td>
                   {% endif %}
                 </tr>
                 {% endfor %}
@@ -53,17 +59,16 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Category</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Product</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form method='POST' action="{% url 'add_category' %}" id="categoryForm">
+            <form method='POST' action="{% url 'create&list_product' %}" id="productForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <input type="hidden" name="id" id="categoryId">
-                    <div class="mb-3">
-                        <label for="exampleInput" class="form-label">Enter</label>
-                        <input required type="text" name='name' class="form-control" id="exampleInput" placeholder="Type ...">
+                    <input type="hidden" name="id" id="productId">
+                    <div>
+                        {{form.as_p }}
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -84,39 +89,27 @@
 
 <script>
 // The manual modal initialization might not be necessary as Bootstrap 5 handles it automatically via data attributes
-// However, if you want to control it programmatically, use the following line
-{% comment %} $('#exampleModalCenter').modal({
-    backdrop: 'static',  // Make it static (optional)
-    keyboard: false      // Disable closing with keyboard (optional)
-});
 
-$('form').on('submit', function(event) {
-    const inputField = $('#exampleInput').val();
-    if (!inputField) {
-        alert('Category name cannot be empty.');
-        event.preventDefault(); // Prevent form submission
-    }
-}); {% endcomment %}
 
 function openUpdateModal(id, name) {
-    $('#categoryId').val(id); // Set the hidden input value
+    $('#productId').val(id); // Set the hidden input value
     $('#exampleInput').val(name); // Populate the input field with the current name
     if (id) {
-        $('#categoryForm').attr('action', '{% url "update_category" 0 %}'.replace('0', id));  // Replace '0' with the actual category ID
+        $('#productForm').attr('action', '{% url "update_product" 0 %}'.replace('0', id));  // Replace '0' with the actual category ID
     } else {
-        $('#categoryForm').attr('action', '{% url "add_category" %}');  // Set form action for adding a new category
+        $('#productForm').attr('action', '{% url "create&list_product" %}');  // Set form action for adding a new category
     }
     $('#exampleModalCenter').modal('show');  // Show the modal
 }
 
 // Adjusting the form submission handling
-$('#categoryForm').on('submit', function(event) {
+{% comment %} $('#productForm').on('submit', function(event) {
     const inputField = $('#exampleInput').val();
     if (!inputField) {
-        alert('Category name cannot be empty.');
+        alert('Product name cannot be empty.');
         event.preventDefault(); // Prevent form submission
     }
-});
+}); {% endcomment %}
 
 
 </script>

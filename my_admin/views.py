@@ -3,7 +3,8 @@ from user.models import MyUser
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.core.paginator import Paginator
-from product.models import Category
+from product.models import Category, Product
+from product.forms import ProductForm
 
 # Create your views here.
 def test(request):
@@ -49,8 +50,30 @@ def delete_category(request,pk):
     category.save()
     return redirect('add_category')
 
+
 def create_product(request):
-    pass
+    form = ProductForm()  # Initialize an empty form
+    if request.method == 'POST':
+        print("Inside POST")
+        print("Request Files:", request.FILES)  # Debugging line
+        print("Request POST Data:", request.POST)
+       
+        form = ProductForm(request.POST, request.FILES)  # Pass both POST and FILES for image uploads
+        
+        if form.is_valid():
+            print("The form is valid")
+            form.save()  # Save the form data to the database
+        else:
+            print("Form errors:", form.errors)  # Print form errors if any
+
+    products = Product.objects.all()  # Fetch all products
+    context = {
+        'form': form,   # Pass the form to the template
+        'products': products  # Pass the products to the template
+    }
+    return render(request, 'my_admin/product_list.html', context)
+
+
 
 def update_product(request):
     pass
